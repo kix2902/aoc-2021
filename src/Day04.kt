@@ -65,10 +65,51 @@ fun main() {
         return cards.first { it.win }.result()
     }
 
+    fun part2(input: List<String>): Int {
+        val numbers = mutableListOf<Int>()
+        val cards = mutableListOf<Card>()
+
+        val temp = mutableListOf<List<Int>>()
+        input.forEachIndexed { index, line ->
+            if (index == 0) {
+                numbers.addAll(line.split(",").map { it.toInt() })
+            } else {
+                if (line.isNotEmpty()) {
+                    val row = line.split(" ").filter { it.isNotBlank() }.map { it.toInt() }
+                    temp.add(row)
+
+                } else if (temp.isNotEmpty()) {
+                    val card = Card(temp)
+                    cards.add(card)
+                    temp.clear()
+                }
+            }
+        }
+        val card = Card(temp)
+        cards.add(card)
+
+        val won = mutableListOf<Int>()
+        numbers.forEach { number ->
+            if (won.size == cards.size) return@forEach
+
+            cards.forEach {
+                it.mark(number)
+            }
+
+            cards.forEachIndexed { index, card ->
+                if ((card.win) && (!won.contains(index))) won.add(index)
+            }
+        }
+
+        return cards[won.last()].result()
+    }
+
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day04_test")
     check(part1(testInput) == 4512)
+    check(part2(testInput) == 1924)
 
     val input = readInput("Day04")
     println(part1(input))
+    println(part2(input))
 }
